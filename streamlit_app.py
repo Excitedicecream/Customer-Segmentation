@@ -8,8 +8,7 @@ from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.datasets import make_blobs
-from sklearn.pipeline import Pipeline
-
+from sklearn.pipeline import make_pipeline
 # Shared Data
 
 df = pd.read_csv('https://raw.githubusercontent.com/Excitedicecream/CSV-Files/refs/heads/main/customer_data.csv')
@@ -20,7 +19,7 @@ st.dataframe(df.head())
 
 scaler=StandardScaler()
 pca=PCA()
-pipeline=Pipeline([('scaler', scaler), ('pca', pca)])
+pipeline= make_pipeline(scaler,pca)
 
 pipeline.fit(df)
 
