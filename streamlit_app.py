@@ -24,27 +24,37 @@ st.dataframe(df.head())
 df.dropna(inplace=True)
 if 'CustomerID' in df.columns:
     df.drop(['CustomerID'], axis=1, inplace=True)
-df = pd.get_dummies(df)
 
+# Save original purchase_history for comparison
+if 'purchase_history' in df.columns:
+    purchase_history_col = df['purchase_history'].copy()
+else:
+    st.error("purchase_history column not found in dataset.")
+    st.stop()
+
+# One-hot encode for clustering
+df_encoded = pd.get_dummies(df)
 # ==========================
 # Scale + PCA
 # ==========================
 scaler = StandardScaler()
 pca = PCA(n_components=2)  # Reduce to 2D for visualization
 pipeline = make_pipeline(scaler, pca)
-X_pca = pipeline.fit_transform(df)
-
-# ==========================
-# Sidebar - KMeans Parameters
-# ==========================
-st.sidebar.title("KMeans Options")
-n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3)
-model = KMeans(n_clusters=n_clusters, random_state=42)
+X_pca = pipeline.fit_transform(df_encoded)
 
 # ==========================
 # Fit Model & Predict
 # ==========================
 labels = model.fit_predict(X_pca)
+
+# ==========================
+# Crosstab (Clusters vs Purchase History)
+# ==========================
+crosstab = pd.crosstab(labels, purchase_history_col, 
+                       rownames=['Cluster'], colnames=['Purchase History'])
+st.subheader("Cluster vs Purchase History")
+st.dataframe(crosstab)
+
 
 # ==========================
 # Evaluate Clustering
