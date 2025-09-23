@@ -103,3 +103,11 @@ ax.set_ylabel("PCA 2")
 legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
 ax.add_artist(legend1)
 st.pyplot(fig)
+
+
+# Crosstab between predicted clusters and actual purchase_history values
+if 'purchase_history' in df.columns:
+    crosstab = pd.crosstab(labels, df['purchase_history'], 
+                           rownames=['Cluster'], colnames=['Purchase History'])
+    st.subheader("Cluster vs Purchase History")
+    st.dataframe(crosstab)
