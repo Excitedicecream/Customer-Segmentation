@@ -21,12 +21,13 @@ scaler=StandardScaler()
 pca=PCA()
 pipeline= make_pipeline(scaler,pca)
 
+# Fit the pipeline to 'samples'
 pipeline.fit(df)
 
+# Plot the explained variances
 features = range(pca.n_components_)
-plt.figure(figsize=(10, 6))
-plt.plot(features, pca.explained_variance_ratio_, marker='o')
-plt.title('Explained Variance by Principal Component')
-plt.xlabel('Principal Component')
-plt.ylabel('Variance Explained')
+plt.bar(features, pca.explained_variance_)
+plt.xlabel('PCA feature')
+plt.ylabel('variance')
+plt.xticks(features)
 plt.show()
