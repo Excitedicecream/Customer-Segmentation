@@ -53,10 +53,13 @@ labels = model.fit_predict(X_pca)
 # ==========================
 # Crosstab (Clusters vs Purchase History)
 # ==========================
-crosstab = pd.crosstab(labels, df_raw.purchase_history_col, 
-                       rownames=['Cluster'], colnames=['Purchase History'])
-st.subheader("Cluster vs Purchase History")
-st.dataframe(crosstab)
+if 'purchase_history' in df_raw.columns:
+    crosstab = pd.crosstab(labels, df_raw['purchase_history'], 
+                           rownames=df['Cluster'], colnames=df_raw['Purchase History'])
+    st.subheader("Cluster vs Purchase History")
+    st.dataframe(crosstab)
+else:
+    st.error("purchase_history column not found in dataset.")
 
 
 # ==========================
