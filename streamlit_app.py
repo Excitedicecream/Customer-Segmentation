@@ -116,7 +116,12 @@ st.dataframe(df_clusters.head())
 # Crosstab (only if you have a ground truth column like 'purchase_history')
 # If you don't have such a column, skip this part
 # Example: if 'Purchase_History' exists in your CSV
-if 'Purchase_History' in df.columns:
-    ct = pd.crosstab(df_clusters['Cluster'], df['Purchase_History'])
-    st.subheader("Cluster vs Purchase History Crosstab")
-    st.dataframe(ct)
+
+# Use fcluster to extract labels: labels
+labels = fcluster(mergings,6,criterion='distance')
+
+# Create a DataFrame with labels and varieties as columns: df
+df = pd.DataFrame({'labels': labels, 'purchase history': purchase_history})
+
+# Create crosstab: ct
+ct = pd.crosstab(df['labels'],df['varieties'])
