@@ -22,18 +22,22 @@ st.dataframe(df.head())
 # Data Cleaning
 # ==========================
 df.dropna(inplace=True)
+
+# Drop ID column if exists
 if 'CustomerID' in df.columns:
     df.drop(['CustomerID'], axis=1, inplace=True)
 
-# Save original purchase_history for comparison
+# Save original purchase_history separately
 if 'purchase_history' in df.columns:
     purchase_history_col = df['purchase_history'].copy()
+    df = df.drop(['purchase_history'], axis=1)   # Drop from clustering data
 else:
     st.error("purchase_history column not found in dataset.")
     st.stop()
 
 # One-hot encode for clustering
 df_encoded = pd.get_dummies(df)
+
 # ==========================
 # Scale + PCA
 # ==========================
@@ -42,13 +46,13 @@ pca = PCA(n_components=2)  # Reduce to 2D for visualization
 pipeline = make_pipeline(scaler, pca)
 X_pca = pipeline.fit_transform(df_encoded)
 
-
-# ========================== 
-# # Sidebar - KMeans Parameters 
-# # ========================== 
+# ==========================
+# Sidebar - KMeans Parameters
+# ==========================
 st.sidebar.title("KMeans Options")
-n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3) 
+n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3)
 model = KMeans(n_clusters=n_clusters, random_state=42)
+
 # ==========================
 # Fit Model & Predict
 # ==========================
@@ -61,7 +65,6 @@ crosstab = pd.crosstab(labels, purchase_history_col,
                        rownames=['Cluster'], colnames=['Purchase History'])
 st.subheader("Cluster vs Purchase History")
 st.dataframe(crosstab)
-
 
 # ==========================
 # Evaluate Clustering
@@ -100,11 +103,3 @@ ax.set_ylabel("PCA 2")
 legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
 ax.add_artist(legend1)
 st.pyplot(fig)
-
-
-# Crosstab between predicted clusters and actual purchase_history values
-if 'purchase_history' in df.columns:
-    crosstab = pd.crosstab(labels, df['purchase_history'], 
-                           rownames=['Cluster'], colnames=['Purchase History'])
-    st.subheader("Cluster vs Purchase History")
-    st.dataframe(crosstab)
