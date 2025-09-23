@@ -16,7 +16,7 @@ df_raw = pd.read_csv('https://raw.githubusercontent.com/Excitedicecream/CSV-File
 st.title('Customer Segmentation with KMeans')
 st.write('This dashboard performs customer segmentation using **KMeans clustering**.')
 st.subheader("Dataset Preview")
-df=df_raw=df_raw.drop(['purchase_history'],axis=1)
+df=df_raw.drop(['purchase_history'],axis=1)
 st.dataframe(df.head())
 
 
@@ -26,7 +26,6 @@ st.dataframe(df.head())
 df.dropna(inplace=True)
 if 'CustomerID' in df.columns:
     df.drop(['CustomerID'], axis=1, inplace=True)
-
 
 
 # One-hot encode for clustering
@@ -54,7 +53,7 @@ labels = model.fit_predict(X_pca)
 # ==========================
 # Crosstab (Clusters vs Purchase History)
 # ==========================
-crosstab = pd.crosstab(labels, purchase_history_col, 
+crosstab = pd.crosstab(labels, df.purchase_history_col, 
                        rownames=['Cluster'], colnames=['Purchase History'])
 st.subheader("Cluster vs Purchase History")
 st.dataframe(crosstab)
@@ -98,10 +97,3 @@ legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
 ax.add_artist(legend1)
 st.pyplot(fig)
 
-
-# Crosstab between predicted clusters and actual purchase_history values
-if 'purchase_history' in df_raw.columns:
-    crosstab = pd.crosstab(labels, df_raw['purchase_history'], 
-                           rownames=['Cluster'], colnames=['Purchase History'])
-    st.subheader("Cluster vs Purchase History")
-    st.dataframe(crosstab)
