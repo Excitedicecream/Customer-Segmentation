@@ -41,7 +41,7 @@ X_pca = pipeline.fit_transform(df)
 mergings = linkage(df,method='single')
 
 # Plot the dendrogram
-dendrogram(mergings,labels=purchase_history,leaf_rotation=90,leaf_font_size=6)
+dendrogram(mergings,leaf_rotation=90,leaf_font_size=6)
 st.pyplot(plt)
 
 # ==========================
