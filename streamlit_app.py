@@ -18,9 +18,9 @@ st.write('This dashboard allows you to perform customer segmentation using vario
 st.write('Dataset Preview:')
 st.dataframe(df.head())
 
-sc=StandardScaler()
+scaler=StandardScaler()
 pca=PCA()
-pipeline=Pipeline([('scaler', sc), ('pca', pca)])
+pipeline=Pipeline([('scaler', scaler), ('pca', pca)])
 
 pipeline.fit(df)
 
