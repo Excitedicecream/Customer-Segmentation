@@ -40,8 +40,7 @@ mergings = linkage(df,method='single')
 
 # Plot the dendrogram
 dendrogram(mergings,leaf_rotation=90,leaf_font_size=6)
-plt.show()
-
+st.pyplot(plt)
 
 # ==========================
 # Sidebar - Select Clustering Method
