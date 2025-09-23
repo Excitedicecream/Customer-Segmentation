@@ -55,7 +55,7 @@ labels = model.fit_predict(X_pca)
 # ==========================
 if 'purchase_history' in df_raw.columns:
     crosstab = pd.crosstab(labels, df_raw['purchase_history'], 
-                           rownames=df['Cluster'], colnames=df_raw['Purchase History'])
+                           rownames=['Cluster'], colnames=df_raw['Purchase History'])
     st.subheader("Cluster vs Purchase History")
     st.dataframe(crosstab)
 else:
