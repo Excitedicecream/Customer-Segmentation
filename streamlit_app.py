@@ -24,7 +24,7 @@ pipeline=Pipeline([('scaler', sc), ('pca', pca)])
 
 pipeline.fit(df)
 
-features = range(pca.n_components_)_
+features = range(pca.n_components_)
 plt.figure(figsize=(10, 6))
 plt.plot(features, pca.explained_variance_ratio_, marker='o')
 plt.title('Explained Variance by Principal Component')
