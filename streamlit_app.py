@@ -27,12 +27,7 @@ df.dropna(inplace=True)
 if 'CustomerID' in df.columns:
     df.drop(['CustomerID'], axis=1, inplace=True)
 
-# Save original purchase_history for comparison
-if 'purchase_history' in df.columns:
-    purchase_history_col = df['purchase_history'].copy()
-else:
-    st.error("purchase_history column not found in dataset.")
-    st.stop()
+
 
 # One-hot encode for clustering
 df_encoded = pd.get_dummies(df)
