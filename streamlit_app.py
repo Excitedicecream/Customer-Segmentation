@@ -83,3 +83,10 @@ ax.set_ylabel("PCA 2")
 legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
 ax.add_artist(legend1)
 st.pyplot(fig)
+
+
+# If you have a true category column (e.g., "PurchaseHistory")
+if 'purchase_history' in df.columns:
+    crosstab = pd.crosstab(labels, df['purchase_history'], rownames=['Cluster'], colnames=['Purchase History'])
+    st.subheader("Cluster vs Purchase History Table")
+    st.dataframe(crosstab)
