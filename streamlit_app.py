@@ -42,6 +42,13 @@ pca = PCA(n_components=2)  # Reduce to 2D for visualization
 pipeline = make_pipeline(scaler, pca)
 X_pca = pipeline.fit_transform(df_encoded)
 
+
+# ========================== 
+# # Sidebar - KMeans Parameters 
+# # ========================== 
+st.sidebar.title("KMeans Options")
+n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3) 
+model = KMeans(n_clusters=n_clusters, random_state=42)
 # ==========================
 # Fit Model & Predict
 # ==========================
