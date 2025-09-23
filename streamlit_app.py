@@ -113,15 +113,18 @@ df_clusters['Cluster'] = labels_hc
 st.subheader("Cluster Assignments from Hierarchical Clustering")
 st.dataframe(df_clusters.head())
 
-# Crosstab (only if you have a ground truth column like 'purchase_history')
-# If you don't have such a column, skip this part
-# Example: if 'Purchase_History' exists in your CSV
+# ==========================
+# Hierarchical Clustering with fcluster
+# ==========================
+labels_hc = fcluster(mergings, 6, criterion='distance')
 
-# Use fcluster to extract labels: labels
-labels = fcluster(mergings,6,criterion='distance')
+# Show how many samples in each cluster
+hc_counts = pd.Series(labels_hc).value_counts().sort_index()
+st.subheader("Cluster Counts for Hierarchical Clustering")
+st.write(hc_counts)
 
-# Create a DataFrame with labels and varieties as columns: df
-df = pd.DataFrame({'labels': labels, 'purchase history': purchase_history})
+# Add to dataframe
+df_clusters = df.copy()
+df_clusters['Cluster'] = labels_hc
+st.dataframe(df_clusters.head())
 
-# Create crosstab: ct
-ct = pd.crosstab(df['labels'],df['varieties'])
