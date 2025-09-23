@@ -3,21 +3,18 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
+from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.pipeline import make_pipeline
-from scipy.cluster.hierarchy import linkage, dendrogram
-from scipy.cluster.hierarchy import fcluster
-
 
 # ==========================
 # Load Data
 # ==========================
 df = pd.read_csv('https://raw.githubusercontent.com/Excitedicecream/CSV-Files/refs/heads/main/customer_data.csv')
 
-st.title('Customer Segmentation Dashboard')
-st.write('This dashboard allows you to perform customer segmentation using various clustering algorithms.')
+st.title('Customer Segmentation with KMeans')
+st.write('This dashboard performs customer segmentation using **KMeans clustering**.')
 st.subheader("Dataset Preview")
 st.dataframe(df.head())
 
@@ -37,29 +34,12 @@ pca = PCA(n_components=2)  # Reduce to 2D for visualization
 pipeline = make_pipeline(scaler, pca)
 X_pca = pipeline.fit_transform(df)
 
-# Calculate the linkage: mergings
-mergings = linkage(df,method='single')
-
-# Plot the dendrogram
-dendrogram(mergings,leaf_rotation=90,leaf_font_size=6)
-st.pyplot(plt)
-
 # ==========================
-# Sidebar - Select Clustering Method
+# Sidebar - KMeans Parameters
 # ==========================
-st.sidebar.title("Clustering Options")
-algo = st.sidebar.selectbox("Choose an algorithm:", ["KMeans", "DBSCAN", "Agglomerative"])
-
-if algo == "KMeans":
-    n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3)
-    model = KMeans(n_clusters=n_clusters, random_state=42)
-elif algo == "DBSCAN":
-    eps = st.sidebar.slider("Epsilon (eps)", 0.1, 5.0, 0.5)
-    min_samples = st.sidebar.slider("Min Samples", 2, 20, 5)
-    model = DBSCAN(eps=eps, min_samples=min_samples)
-else:  # Agglomerative
-    n_clusters = st.sidebar.slider("Number of Clusters", 2, 10, 3)
-    model = AgglomerativeClustering(n_clusters=n_clusters)
+st.sidebar.title("KMeans Options")
+n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3)
+model = KMeans(n_clusters=n_clusters, random_state=42)
 
 # ==========================
 # Fit Model & Predict
@@ -69,11 +49,16 @@ labels = model.fit_predict(X_pca)
 # ==========================
 # Evaluate Clustering
 # ==========================
-if len(set(labels)) > 1 and -1 not in labels:  # silhouette needs >1 cluster and no noise label -1
+if len(set(labels)) > 1:
     score = silhouette_score(X_pca, labels)
     st.write(f"**Silhouette Score:** {score:.3f}")
-else:
-    st.write("Silhouette Score: Not applicable (only one cluster or DBSCAN noise detected).")
+
+# ==========================
+# Cluster Counts
+# ==========================
+cluster_counts = pd.Series(labels).value_counts().sort_index()
+st.subheader("Cluster Counts")
+st.write(cluster_counts)
 
 # ==========================
 # PCA Variance Plot
@@ -98,33 +83,3 @@ ax.set_ylabel("PCA 2")
 legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
 ax.add_artist(legend1)
 st.pyplot(fig)
-
-
-# ==========================
-# Hierarchical Clustering with fcluster
-# ==========================
-# Cut the dendrogram into clusters
-labels_hc = fcluster(mergings, 6, criterion='distance')
-
-# Build a results DataFrame
-df_clusters = df.copy()
-df_clusters['Cluster'] = labels_hc
-
-st.subheader("Cluster Assignments from Hierarchical Clustering")
-st.dataframe(df_clusters.head())
-
-# ==========================
-# Hierarchical Clustering with fcluster
-# ==========================
-labels_hc = fcluster(mergings, 6, criterion='distance')
-
-# Show how many samples in each cluster
-hc_counts = pd.Series(labels_hc).value_counts().sort_index()
-st.subheader("Cluster Counts for Hierarchical Clustering")
-st.write(hc_counts)
-
-# Add to dataframe
-df_clusters = df.copy()
-df_clusters['Cluster'] = labels_hc
-st.dataframe(df_clusters.head())
-
