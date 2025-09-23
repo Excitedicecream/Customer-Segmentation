@@ -18,7 +18,7 @@ st.write('Dataset Preview:')
 st.dataframe(df.head())
 df.fillna(0,inplace=True)
 df.drop(['CustomerID'],axis=1,inplace=True)
-df=df.select_dtypes(include=[np.number])
+df=df.get_dummies(df)
 
 scaler=StandardScaler()
 pca=PCA()
