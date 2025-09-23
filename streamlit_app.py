@@ -8,6 +8,8 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.pipeline import make_pipeline
 from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.cluster.hierarchy import fcluster
+
 
 # ==========================
 # Load Data
@@ -96,3 +98,25 @@ ax.set_ylabel("PCA 2")
 legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
 ax.add_artist(legend1)
 st.pyplot(fig)
+
+
+# ==========================
+# Hierarchical Clustering with fcluster
+# ==========================
+# Cut the dendrogram into clusters
+labels_hc = fcluster(mergings, 6, criterion='distance')
+
+# Build a results DataFrame
+df_clusters = df.copy()
+df_clusters['Cluster'] = labels_hc
+
+st.subheader("Cluster Assignments from Hierarchical Clustering")
+st.dataframe(df_clusters.head())
+
+# Crosstab (only if you have a ground truth column like 'purchase_history')
+# If you don't have such a column, skip this part
+# Example: if 'Purchase_History' exists in your CSV
+if 'Purchase_History' in df.columns:
+    ct = pd.crosstab(df_clusters['Cluster'], df['Purchase_History'])
+    st.subheader("Cluster vs Purchase History Crosstab")
+    st.dataframe(ct)
