@@ -17,7 +17,7 @@ st.write('This dashboard allows you to perform customer segmentation using vario
 st.write('Dataset Preview:')
 st.dataframe(df.head())
 df.fillna(0,inplace=True)
-df.drop(['CustomerID'],axis=1,inplace=True)
+df=df.drop(['CustomerID'],axis=1,inplace=True)
 df=df.get_dummies(df)
 
 scaler=StandardScaler()
