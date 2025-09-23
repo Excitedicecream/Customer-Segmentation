@@ -16,7 +16,7 @@ st.title('Customer Segmentation Dashboard')
 st.write('This dashboard allows you to perform customer segmentation using various clustering algorithms.')
 st.write('Dataset Preview:')
 st.dataframe(df.head())
-df.fillna(0,inplace=True)
+df.dropna()
 df=pd.get_dummies(df)
 
 scaler=StandardScaler()
