@@ -7,6 +7,7 @@ from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.pipeline import make_pipeline
+from scipy.cluster.hierarchy import linkage, dendrogram
 
 # ==========================
 # Load Data
@@ -33,6 +34,14 @@ scaler = StandardScaler()
 pca = PCA(n_components=2)  # Reduce to 2D for visualization
 pipeline = make_pipeline(scaler, pca)
 X_pca = pipeline.fit_transform(df)
+
+# Calculate the linkage: mergings
+mergings = linkage(df,method='single')
+
+# Plot the dendrogram
+dendrogram(mergings,leaf_rotation=90,leaf_font_size=6)
+plt.show()
+
 
 # ==========================
 # Sidebar - Select Clustering Method
