@@ -9,16 +9,27 @@ from sklearn.metrics import silhouette_score
 from sklearn.pipeline import make_pipeline
 
 # ==========================
+# Page Configuration
+# ==========================
+st.set_page_config(page_title="Customer Segmentation Dashboard", layout="wide")
+
+# ==========================
 # Load Data
 # ==========================
 df_raw = pd.read_csv('https://raw.githubusercontent.com/Excitedicecream/CSV-Files/refs/heads/main/customer_data.csv')
 
-st.title('Customer Segmentation with KMeans')
-st.write('This dashboard performs customer segmentation using **KMeans clustering**.')
-st.subheader("Dataset Preview")
-df=df_raw.drop(['purchase_history'],axis=1)
-st.dataframe(df.head())
+st.title("🧩 Customer Segmentation with KMeans")
+st.markdown(
+    "This interactive dashboard segments customers into groups using **KMeans clustering**. "
+    "Understanding these segments helps businesses improve marketing strategies and customer engagement."
+)
 
+# ==========================
+# Dataset Preview
+# ==========================
+st.header("📋 Dataset Overview")
+df = df_raw.drop(['purchase_history'], axis=1)
+st.dataframe(df.head(), use_container_width=True)
 
 # ==========================
 # Data Cleaning
@@ -27,76 +38,121 @@ df.dropna(inplace=True)
 if 'CustomerID' in df.columns:
     df.drop(['CustomerID'], axis=1, inplace=True)
 
-
-# One-hot encode for clustering
+# One-hot encode categorical data
 df_encoded = pd.get_dummies(df)
+
 # ==========================
-# Scale + PCA
+# Data Scaling & PCA
 # ==========================
 scaler = StandardScaler()
-pca = PCA(n_components=2)  # Reduce to 2D for visualization
+pca = PCA(n_components=2)
 pipeline = make_pipeline(scaler, pca)
 X_pca = pipeline.fit_transform(df_encoded)
 
-
-# ========================== 
-# # Sidebar - KMeans Parameters 
-# # ========================== 
-st.sidebar.title("KMeans Options")
-n_clusters = st.sidebar.slider("Number of Clusters (k)", 2, 10, 3) 
-model = KMeans(n_clusters=n_clusters, random_state=42)
 # ==========================
-# Fit Model & Predict
+# Sidebar Controls
+# ==========================
+st.sidebar.title("⚙️ Model Options")
+st.sidebar.markdown("💡 *Tip: KMeans performs best at **k = 4** based on silhouette analysis.*")
+n_clusters = st.sidebar.slider("Select Number of Clusters (k)", 2, 10, 4)
+model = KMeans(n_clusters=n_clusters, random_state=42)
+
+# ==========================
+# Clustering
 # ==========================
 labels = model.fit_predict(X_pca)
 
 # ==========================
-# Crosstab (Clusters vs Purchase History)
+# Evaluation Metrics
 # ==========================
-if 'purchase_history' in df_raw.columns:
-    crosstab = pd.crosstab(labels, df_raw['purchase_history'], 
-                           rownames=['Cluster'], colnames=['Purchase History'])
-    st.subheader("Cluster vs Purchase History")
-    st.dataframe(crosstab)
-else:
-    st.error("purchase_history column not found in dataset.")
+st.header("📈 Model Evaluation")
 
-
-# ==========================
-# Evaluate Clustering
-# ==========================
 if len(set(labels)) > 1:
     score = silhouette_score(X_pca, labels)
-    st.write(f"**Silhouette Score:** {score:.3f}")
+    st.metric("Silhouette Score", f"{score:.3f}")
 
-# ==========================
-# Cluster Counts
-# ==========================
 cluster_counts = pd.Series(labels).value_counts().sort_index()
-st.subheader("Cluster Counts")
-st.write(cluster_counts)
+st.subheader("Cluster Distribution")
+st.bar_chart(cluster_counts)
 
 # ==========================
-# PCA Variance Plot
+# Cluster vs Purchase History
 # ==========================
-st.subheader("PCA Explained Variance")
+if 'purchase_history' in df_raw.columns:
+    st.header("🛍️ Cluster vs Purchase History")
+    crosstab = pd.crosstab(labels, df_raw['purchase_history'],
+                           rownames=['Cluster'], colnames=['Purchase History'])
+    st.dataframe(crosstab, use_container_width=True)
+else:
+    st.warning("⚠️ 'purchase_history' column not found in dataset.")
+
+# ==========================
+# Cluster Mean Analysis
+# ==========================
+st.header("📊 Cluster Mean Values")
+
+df_clustered = df_encoded.copy()
+df_clustered['Cluster'] = labels
+cluster_means = df_clustered.groupby('Cluster').mean()
+
+st.dataframe(cluster_means.style.highlight_max(axis=0, color='lightgreen'), use_container_width=True)
+
+st.markdown(
+    """
+**Insights:**
+
+- Customers with **higher purchasing power (around age 50)** typically hold **PhD-level degrees**, are **married**, and demonstrate **strong brand loyalty**.  
+  This group represents the company’s **most valuable customers**, making them ideal for **premium offers, exclusive memberships**, or **loyalty programs**.
+
+- The **second group**, although having **lower purchasing power (around age 40)**, also shows **high customer loyalty** and is **mostly married**.  
+  They often hold **Master’s or Bachelor’s degrees**, suggesting strong engagement but limited spending capacity.  
+  This segment could benefit from **value-based promotions**, **reward programs**, and **personalized deals** to maintain loyalty while encouraging higher spending.
+
+- Overall, **education level and marital status** appear to play a strong role in both **spending behavior** and **brand commitment**.  
+  Businesses can use these insights to design **segmented marketing campaigns** and **customer retention strategies**.
+"""
+)
+
+
+# ==========================
+# PCA Explained Variance
+# ==========================
+st.header("🧮 PCA Explained Variance")
 features = range(len(pca.explained_variance_))
 fig, ax = plt.subplots()
-ax.bar(features, pca.explained_variance_)
-ax.set_xlabel('PCA Feature')
-ax.set_ylabel('Variance')
+ax.bar(features, pca.explained_variance_, color="#69b3a2")
+ax.set_xlabel("PCA Feature")
+ax.set_ylabel("Variance")
 ax.set_xticks(features)
+ax.set_title("Variance Explained by Each PCA Component")
 st.pyplot(fig)
 
 # ==========================
 # Cluster Visualization
 # ==========================
-st.subheader("Cluster Visualization (PCA 2D)")
+st.header("🎯 Cluster Visualization (PCA 2D)")
 fig, ax = plt.subplots()
-scatter = ax.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='tab10')
+scatter = ax.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='tab10', s=50, alpha=0.8)
 ax.set_xlabel("PCA 1")
 ax.set_ylabel("PCA 2")
-legend1 = ax.legend(*scatter.legend_elements(), title="Clusters")
+ax.set_title("Customer Segments in 2D PCA Space")
+legend1 = ax.legend(*scatter.legend_elements(), title="Clusters", loc="best")
 ax.add_artist(legend1)
 st.pyplot(fig)
 
+# ==========================
+# Sidebar Footer
+# ==========================
+st.sidebar.markdown("---")
+st.sidebar.header("👤 About the Creator")
+st.sidebar.markdown(
+    """
+**Jonathan Wong Tze Syuen**  
+📚 *Data Science Enthusiast*  
+
+🔗 [LinkedIn](https://www.linkedin.com/in/jonathan-wong-2b9b39233/)  
+💻 [GitHub](https://github.com/Excitedicecream)
+"""
+)
+st.sidebar.markdown("---")
+st.sidebar.caption("© 2025 Jonathan Wong | Built with Streamlit")
