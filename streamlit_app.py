@@ -147,12 +147,10 @@ st.sidebar.markdown("---")
 st.sidebar.header("👤 About the Creator")
 st.sidebar.markdown(
     """
-**Jonathan Wong Tze Syuen**  
-📚 *Data Science Enthusiast*  
+**Jonathan Wong**  
+📚 Data Science  
 
 🔗 [LinkedIn](https://www.linkedin.com/in/jonathan-wong-2b9b39233/)  
-💻 [GitHub](https://github.com/Excitedicecream)
+🔗 [GitHub](https://github.com/Excitedicecream)
 """
 )
-st.sidebar.markdown("---")
-st.sidebar.caption("© 2025 Jonathan Wong | Built with Streamlit")
